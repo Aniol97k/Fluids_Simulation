@@ -1,0 +1,19 @@
+﻿  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_impl_glfw_gl3.cpp
+  main.cpp
+  physics.cpp
+src\physics.cpp(196): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+src\physics.cpp(252): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  render.cpp
+  render_prims.cpp
+  Generating code
+  All 1161 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  GL_framework.vcxproj -> C:\Users\afolch\Desktop\Cloth_Simulation-master\Fluids_Simulation\x64\Release\GL_framework.exe
+  GL_framework.vcxproj -> C:\Users\afolch\Desktop\Cloth_Simulation-master\Fluids_Simulation\x64\Release\GL_framework.pdb (Full PDB)
+  C:\Users\afolch\Desktop\Cloth_Simulation-master\Fluids_Simulation\libs\glew32.dll
+  1 File(s) copied
+  C:\Users\afolch\Desktop\Cloth_Simulation-master\Fluids_Simulation\libs\glfw3.dll
+  1 File(s) copied
