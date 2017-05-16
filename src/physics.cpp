@@ -18,11 +18,11 @@ namespace ClothMesh {
 };
 
 //Mesh variables
-const int meshRows = 20;
-const int meshColumns = 20;
+const int meshRows = 40;
+const int meshColumns = 40;
 const int totalVertex = meshRows * meshColumns;
 
-static float L = 0.5f;
+static float L = 0.25f;
 static int resetTime = 20;
 static float dtCounter = 0;
 static float height = 2.0f;
@@ -35,7 +35,7 @@ static float lastHeight, lastAmplitude, lastFrequency;
 //Mesh arrays
 glm::vec3 *nodeVectors;
 glm::vec3 *initalVector;
-glm::vec3 waveVector = { 1,0,0 };
+glm::vec3 waveVector = { 1,0,0};
 
 
 void GUI() {
@@ -74,15 +74,12 @@ void PhysicsInit() {
 		nodeVectors[i] = { L * columnsCounter - (L*meshColumns / 2) + L / 2,height, L * rowsCounter - (L*meshRows / 2) + L / 2 };
 		initalVector[i] = nodeVectors[i];
 
-		if (columnsCounter >= meshColumns - 1) {
-			columnsCounter = 0;
-			rowsCounter += 1;
-		}
+		if (columnsCounter >= meshColumns - 1) { columnsCounter = 0; rowsCounter += 1;}
 		else { columnsCounter += 1; }
 	}
 }
 
-void checkChanges() { if (lastHeight != height || lastTime != resetTime || lastFrequency != frequency || lastAmplitude != amplitude) PhysicsInit(); }
+void checkChanges() { if (lastHeight != height || lastTime != resetTime || lastFrequency != frequency || lastAmplitude != amplitude) PhysicsInit(); } //Check variables changes to reset the simulation
 
 void PhysicsUpdate(float dt) {
 	

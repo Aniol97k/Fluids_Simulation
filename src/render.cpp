@@ -725,8 +725,8 @@ GLuint clothVao;
 GLuint clothVbo[2];
 GLuint clothShaders[2];
 GLuint clothProgram;
-extern const int numCols = 20;
-extern const int numRows = 20;
+extern const int numCols = 40;
+extern const int numRows = 40;
 extern const int numVerts = numRows * numCols;
 int numVirtualVerts;
 
@@ -755,7 +755,7 @@ void setupClothMesh() {
 	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
 
-	glPrimitiveRestartIndex(500);
+	glPrimitiveRestartIndex(2000);
 	constexpr int facesVertsIdx = 5 * (numCols - 1) * (numRows - 1);
 	GLuint facesIdx[facesVertsIdx] = { 0 };
 	for (int i = 0; i < (numRows - 1); ++i) {
@@ -764,7 +764,7 @@ void setupClothMesh() {
 			facesIdx[5 * (i*(numCols-1) + j) + 1] = (i + 1)*numCols + j;
 			facesIdx[5 * (i*(numCols-1) + j) + 2] = (i + 1)*numCols + (j + 1);
 			facesIdx[5 * (i*(numCols-1) + j) + 3] = i*numCols + (j + 1);
-			facesIdx[5 * (i*(numCols-1) + j) + 4] = 500;
+			facesIdx[5 * (i*(numCols-1) + j) + 4] = 2000;
 		}
 	}
 	numVirtualVerts = facesVertsIdx;
