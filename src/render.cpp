@@ -725,8 +725,8 @@ GLuint clothVao;
 GLuint clothVbo[2];
 GLuint clothShaders[2];
 GLuint clothProgram;
-extern const int numCols = 14;
-extern const int numRows = 18;
+extern const int numCols = 20;
+extern const int numRows = 20;
 extern const int numVerts = numRows * numCols;
 int numVirtualVerts;
 
@@ -755,22 +755,22 @@ void setupClothMesh() {
 	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
 
-	glPrimitiveRestartIndex(UCHAR_MAX);
+	glPrimitiveRestartIndex(500);
 	constexpr int facesVertsIdx = 5 * (numCols - 1) * (numRows - 1);
-	GLubyte facesIdx[facesVertsIdx] = { 0 };
+	GLuint facesIdx[facesVertsIdx] = { 0 };
 	for (int i = 0; i < (numRows - 1); ++i) {
 		for (int j = 0; j < (numCols - 1); ++j) {
 			facesIdx[5 * (i*(numCols-1) + j) + 0] = i*numCols + j;
 			facesIdx[5 * (i*(numCols-1) + j) + 1] = (i + 1)*numCols + j;
 			facesIdx[5 * (i*(numCols-1) + j) + 2] = (i + 1)*numCols + (j + 1);
 			facesIdx[5 * (i*(numCols-1) + j) + 3] = i*numCols + (j + 1);
-			facesIdx[5 * (i*(numCols-1) + j) + 4] = UCHAR_MAX;
+			facesIdx[5 * (i*(numCols-1) + j) + 4] = 500;
 		}
 	}
 	numVirtualVerts = facesVertsIdx;
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, clothVbo[1]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*numVirtualVerts, facesIdx, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*numVirtualVerts, facesIdx, GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -808,7 +808,7 @@ void drawClothMesh() {
 	glUseProgram(clothProgram);
 	glUniformMatrix4fv(glGetUniformLocation(clothProgram, "mvpMat"), 1, GL_FALSE, glm::value_ptr(_MVP));
 	glUniform4f(glGetUniformLocation(clothProgram, "color"), 0.1f, 1.f, 1.f, 0.f);
-	glDrawElements(GL_LINE_LOOP, numVirtualVerts, GL_UNSIGNED_BYTE, 0);
+	glDrawElements(GL_LINE_LOOP, numVirtualVerts, GL_UNSIGNED_INT, 0);
 
 	glUseProgram(0);
 	glBindVertexArray(0);
