@@ -58,7 +58,7 @@ static float radius = 0.5f;
 static float density = 10.f;
 static float v_sub;
 glm::vec3 y = { 0,1,0 };
-glm::vec3 sphereVector = { 0,5,0 };
+glm::vec3 sphereVector;
 
 void GUI() {
 
@@ -71,7 +71,7 @@ void GUI() {
 	ImGui::SliderFloat("Mesh height", &height, 0.1f, 9.9f); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 	ImGui::SliderFloat("Amplitude", &amplitude, 0.1f, 0.9f); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 	ImGui::SliderFloat("Frequency", &frequency, 0.1f, 5.f); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
-	ImGui::SliderFloat3("Wave vector", &waveVector.x, 0.f,10.f); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+	ImGui::SliderFloat3("Wave vector", &waveVector.x, 0.f,0.9f); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 
 	//Multiple Gerstner waves activation and variables
 	ImGui::Text("MULTIPLE GERSTNER WAVES");
@@ -82,7 +82,7 @@ void GUI() {
 
 	//Sphere tweakable variables
 	ImGui::Text("BUOYANCY SPHERE");
-	ImGui::SliderFloat("Sphere mass", &mass, 0.1f, 10.f); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+	ImGui::SliderFloat("Sphere mass", &mass, 0.01f, 10.f); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 	ImGui::SliderFloat("Sphere density", &density, 0.1f, 20.f); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 	ImGui::SliderFloat("Sphere radius", &radius, 0.1f, 10.f); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 	ImGui::SliderFloat3("Sphere vector", &sphereVector.x, 0.5f, 6.f); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
@@ -103,9 +103,9 @@ void initMultipleWaves() {
 
 	//For that creates wave vectors, frequency and amplitude for each of the total waves
 	for (int i = 0; i < totalWaves; i++) {
-		waveVectorArray[i] = glm::vec3(-rand() % 3, 0, rand() % 3);
+		waveVectorArray[i] = glm::vec3(-rand() % 3, 0, rand() % 3); 
 		frequencyArray[i] = frequency;
-		amplitudeArray[i] = amplitude2 / 10.f;
+		amplitudeArray[i] = amplitude2 / (totalWaves*2);
 	}
 }
 
@@ -114,6 +114,7 @@ void PhysicsInit() {
 	//Creation of all glm::vec3 arrays
 	nodeVectors = new glm::vec3[totalVertex];
 	initalVector = new glm::vec3[totalVertex];
+	sphereVector = { 0,5,0 };
 
 	//Sphere setup
 	Sphere::setupSphere(sphereVector, radius);
@@ -133,6 +134,12 @@ void PhysicsInit() {
 		if (columnsCounter >= meshColumns - 1) { columnsCounter = 0; rowsCounter += 1;}
 		else { columnsCounter += 1; }
 	}
+
+	//Calculus of the nearest nodes to the sphere
+	for (int i = 0; i < totalVertex; i++) {
+		glm::distance(nodeVectors[i], sphereVector)
+
+	}
 }
 
 //Check variables changes to reset the simulation
@@ -147,6 +154,7 @@ void PhysicsUpdate(float dt) {
 	checkChanges(); //Checks for variables changes
 	checkWavesChanges(); //Checks for waves variable changes
 	
+	//Calculus of Gerstner Waves
 	switch (multipleWaves) {
 
 		case true:  //Applying more than one Gerstner waves
@@ -161,7 +169,7 @@ void PhysicsUpdate(float dt) {
 					nodeVectors[i] -= (waveVectorArray[j] / glm::length(waveVectorArray[j])) * amplitudeArray[j] * sin(glm::dot(waveVectorArray[j], initalVector[i]) - frequencyArray[j] * dtCounter); //Apply the calculus of new waves to the original one for 'X' and 'Z'
 					nodeVectors[i].y += amplitudeArray[j] * cos(glm::dot(waveVectorArray[j], initalVector[i]) - frequencyArray[j] * dtCounter);  //Apply the calculus of new waves to the original one for 'Y'
 
-				}
+				}	
 			}
 
 		break;
@@ -179,9 +187,13 @@ void PhysicsUpdate(float dt) {
 
 		}
 	
+	//Calculus of external forces on a Sphere
+	sphereVector.y += -gravity * mass * dt;
+
 	if (dtCounter >= resetTime) {PhysicsInit(); dtCounter = 0; } //Reset every "x" seconds
 
 	ClothMesh::updateClothMesh(&nodeVectors[0].x); //Update the mesh positions
+	Sphere::updateSphere(sphereVector, radius);
 }
 
 void PhysicsCleanup() {}
