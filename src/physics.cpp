@@ -61,6 +61,8 @@ static float v_sub, fluidHeight, sphereCorrectPosition;
 glm::vec3 y = { 0,1,0 };
 glm::vec3 sphereVector, lastSphereVector, startingVector, buoyancy, sphereVelocity;
 float *closePos,sphereFluidDistance, sinkedVolume;
+std::map<float, int> closeNodes;
+static int closestNode;
 
 void GUI() {
 
@@ -95,52 +97,32 @@ void GUI() {
 	}
 }
 
-//Insertion sort algorithm to sort highest and lowest values of an array
-void insertionSort(float arr[], int length) {
-
-	int i, j, tmp;
-
-	for (i = 1; i < length; i++) {
-		j = i;
-		while (j > 0 && arr[j - 1] > arr[j]) {
-			tmp = arr[j];
-			arr[j] = arr[j - 1];
-			arr[j - 1] = tmp;
-			j--;
-		}
-	}
-}
-
-void getfluidHeight(int closestNodes) {
-
+void getClosestNode() {
 	//Calculus of the nearest nodes to the sphere
-	for (int i = 0; i < totalVertex; i++) { closePos[i] = glm::distance(sphereVector.y,nodeVectors[i].y); } //Calculus of the distance between center of the sphere and nodes of the mesh
+	for (int i = 0; i < totalVertex; i++) {closeNodes[glm::distance(sphereVector.y, nodeVectors[i].y)] = i;} //Calculus of the distance between center of the sphere and nodes of the mesh and saved in a map
 
-	insertionSort(closePos, totalVertex); //Sort the distance array to access closest nodes values
-
-										  //Get the "x" most closest values
-	for (int i = totalVertex - 1; i > totalVertex - closestNodes - 1; i--) { fluidHeight += closePos[i]; }
-	fluidHeight = fluidHeight / closestNodes; //Generate an average value
+	//Get the nods with lower distance
+	closestNode = closeNodes.begin()->second;
 
 }
 
 void calculateBuoyancy(float dt) {
 
-	sphereCorrectPosition = radius - sphereVector.y; //Calculate distance between the sphere and the fluid
-	sphereFluidDistance = glm::distance(fluidHeight, sphereCorrectPosition);
+	//Get the "x" most closest values
+	fluidHeight = nodeVectors[closestNode].y;
+	sphereCorrectPosition = sphereVector.y - radius; //Adapt distance from botton of the sphere
+	sphereFluidDistance = glm::distance(sphereCorrectPosition,fluidHeight);
 
 	//If the sphere is below the fluid apply buoyancy
-	std::cout << sphereFluidDistance << std::endl;
-	if (sphereFluidDistance < 0) {
-		float diameter = (radius * 2)*(radius * 2);
-		sinkedVolume = diameter*sphereFluidDistance; //Calculation of v_sub
+
+	if (sphereFluidDistance <= fluidHeight) {
+		float diameter = radius*2;
+		sinkedVolume = (diameter*2)*sphereFluidDistance; //Calculation of v_sub
 		buoyancy = (density * gravity * sinkedVolume) * y; //Total calculation of buoyancy 
 		sphereVelocity += (buoyancy/mass) * dt; //Apply buoyancy to sphere vector
-		std::cout << buoyancy.y << std::endl;
 	}
 
 }
-
 
 void initMultipleWaves() {
 
@@ -165,9 +147,9 @@ void PhysicsInit() {
 	//Creation of all glm::vec3 arrays
 	nodeVectors = new glm::vec3[totalVertex];
 	initalVector = new glm::vec3[totalVertex];
-	closePos = new float[totalVertex];
 	sphereVector = startingVector;
 	sphereVelocity = { 0,0,0 };
+	
 
 	//Sphere setup
 	Sphere::setupSphere(sphereVector, radius);
@@ -189,7 +171,7 @@ void PhysicsInit() {
 	}
 
 	//Sphere calculus
-	getfluidHeight(10);
+	getClosestNode();
 }
 
 //Check variables changes to reset the simulation
