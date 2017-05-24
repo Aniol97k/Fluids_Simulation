@@ -115,7 +115,7 @@ void calculateBuoyancy(float dt) {
 
 	//If the sphere is below the fluid apply buoyancy
 
-	if (sphereFluidDistance <= fluidHeight) {
+	if (sphereFluidDistance <= radius) {
 		float diameter = radius*2;
 		sinkedVolume = (diameter*2)*sphereFluidDistance; //Calculation of v_sub
 		buoyancy = (density * gravity * sinkedVolume) * y; //Total calculation of buoyancy 
