@@ -121,7 +121,6 @@ void calculateBuoyancy(float dt) {
 		buoyancy = (density * gravity * sinkedVolume) * y; //Total calculation of buoyancy 
 		sphereVelocity += (buoyancy/mass) * dt; //Apply buoyancy to sphere vector
 	}
-
 }
 
 void initMultipleWaves() {
@@ -175,7 +174,7 @@ void PhysicsInit() {
 }
 
 //Check variables changes to reset the simulation
-void checkChanges() { if (lastHeight != height || lastTime != resetTime || lastFrequency != frequency || lastAmplitude != amplitude  || lastMass != mass || lastRadius != radius  || lastDensity != density || lastSphereVector != startingVector) PhysicsInit(); }
+void checkChanges() { if (lastHeight != height || lastTime != resetTime || lastFrequency != frequency || lastAmplitude != amplitude  || lastMass != mass || lastRadius != radius  || lastDensity != density || lastSphereVector != startingVector || sphereVector.y < 0) PhysicsInit(); }
 
 void checkWavesChanges() { if (lastTotalWaves != totalWaves || lastAmplitude2 != amplitude2 || lastFrequency2 != frequency2) initMultipleWaves(); }
 
