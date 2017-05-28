@@ -59,10 +59,12 @@ static float radius = 0.5f;
 static float density = 10.f;
 static float v_sub, fluidHeight, sphereCorrectPosition;
 glm::vec3 y = { 0,1,0 };
-glm::vec3 sphereVector, lastSphereVector, startingVector, buoyancy, sphereVelocity;
+glm::vec3 startingVector = { 0,5,0 };
+glm::vec3 sphereVector, lastSphereVector, buoyancy, sphereVelocity;
 float *closePos,sphereFluidDistance, sinkedVolume;
 std::map<float, int> closeNodes;
-static int closestNode;
+static int closestNodeL;
+static int closestNode[5];
 
 void GUI() {
 
@@ -98,23 +100,25 @@ void GUI() {
 }
 
 void getClosestNode() {
+	closeNodes.clear();
+
 	//Calculus of the nearest nodes to the sphere
-	for (int i = 0; i < totalVertex; i++) {closeNodes[glm::distance(sphereVector.y, nodeVectors[i].y)] = i;} //Calculus of the distance between center of the sphere and nodes of the mesh and saved in a map
+	for (int i = 0; i < totalVertex; i++) {closeNodes[glm::distance(sphereVector, nodeVectors[i])] = i;} //Calculus of the distance between center of the sphere and nodes of the mesh and saved in a map
 
-	//Get the nods with lower distance
-	closestNode = closeNodes.begin()->second;
-
+	//Get the node with lower distance
+	for (auto it = closeNodes.begin(); it != closeNodes.end(); ++it) {closestNode[0] = it->second; it++; closestNode[1] = it->second; it++; closestNode[2] = it->second; it++; closestNode[3] = it->second; break;}
+	
 }
 
 void calculateBuoyancy(float dt) {
 
 	//Get the "x" most closest values
-	fluidHeight = nodeVectors[closestNode].y;
+	for (int i = 0; i < 4; i++) {fluidHeight += nodeVectors[closestNode[i]].y;}
+	fluidHeight = (fluidHeight / 4) - 0.5f; //Fluid height correction
 	sphereCorrectPosition = sphereVector.y - radius; //Adapt distance from botton of the sphere
 	sphereFluidDistance = glm::distance(sphereCorrectPosition,fluidHeight);
 
 	//If the sphere is below the fluid apply buoyancy
-
 	if (sphereFluidDistance <= radius) {
 		float diameter = radius*2;
 		sinkedVolume = (diameter*2)*sphereFluidDistance; //Calculation of v_sub
@@ -174,7 +178,7 @@ void PhysicsInit() {
 }
 
 //Check variables changes to reset the simulation
-void checkChanges() { if (lastHeight != height || lastTime != resetTime || lastFrequency != frequency || lastAmplitude != amplitude  || lastMass != mass || lastRadius != radius  || lastDensity != density || lastSphereVector != startingVector || sphereVector.y < 0) PhysicsInit(); }
+void checkChanges() { if (lastHeight != height || lastTime != resetTime || lastFrequency != frequency || lastAmplitude != amplitude  || lastMass != mass || lastRadius != radius  || lastDensity != density || lastSphereVector != startingVector || sphereVector.y <= 0) PhysicsInit(); }
 
 void checkWavesChanges() { if (lastTotalWaves != totalWaves || lastAmplitude2 != amplitude2 || lastFrequency2 != frequency2) initMultipleWaves(); }
 
@@ -221,10 +225,12 @@ void PhysicsUpdate(float dt) {
 	//Calculus of external forces on a Sphere
 	sphereVelocity.y += -gravity * dt; //Apply gravity to the sphere
 	calculateBuoyancy(dt); //Calculate buoyancy force and apply it if necessary
-	sphereVector += sphereVelocity * dt;
+	sphereVector += sphereVelocity * dt; //applying velocity to the sphere
+
 	if (dtCounter >= resetTime) {PhysicsInit(); dtCounter = 0; } //Reset every "x" seconds
 
-	ClothMesh::updateClothMesh(&nodeVectors[0].x); //Update the mesh positions
+	//Update the mesh and sphere positions
+	ClothMesh::updateClothMesh(&nodeVectors[0].x); 
 	Sphere::updateSphere(sphereVector, radius);
 }
 
