@@ -114,7 +114,7 @@ void calculateBuoyancy(float dt) {
 
 	//Get the "x" most closest values
 	for (int i = 0; i < 4; i++) {fluidHeight += nodeVectors[closestNode[i]].y;}
-	fluidHeight = (fluidHeight / 4) - 0.5f; //Fluid height correction
+	fluidHeight = (fluidHeight / 4) - radius; //Fluid height correction
 	sphereCorrectPosition = sphereVector.y - radius; //Adapt distance from botton of the sphere
 	sphereFluidDistance = glm::distance(sphereCorrectPosition,fluidHeight);
 
